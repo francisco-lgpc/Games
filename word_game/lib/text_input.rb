@@ -3,7 +3,7 @@ require 'gosu'
 class TextField < Gosu::TextInput
   # Some constants that define our appearance.
   INACTIVE_COLOR  = 0xcc666666
-  ACTIVE_COLOR    = Gosu::Color.rgba(0,0,255,100)
+  ACTIVE_COLOR    = Gosu::Color.rgba(0,0,0,100)
   SELECTION_COLOR = 0xcc0000ff
   CARET_COLOR     = 0xffffffff
   PADDING = 20

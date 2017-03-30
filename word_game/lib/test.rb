@@ -1,6 +1,10 @@
 require_relative "grid"
 require_relative "longest_word"
 
+
+
+
+
 puts "******** Welcome to the longest word-game !********"
 puts "Here is your grid :"
 grid = Grid.new(9).show
@@ -22,5 +26,3 @@ puts "Your score: #{result[:score]}"
 puts "Message: #{result[:message]}"
 
 puts "*****************************************************"
-
-

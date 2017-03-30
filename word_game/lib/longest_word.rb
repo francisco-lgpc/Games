@@ -50,11 +50,11 @@ end
 
 def message(word, time_elapsed, score, in_grid)
   if !in_grid
-    "not in the grid"
+    "Your word is not in the grid!"
   elsif !english?(word)
-    "not an english word"
+    "Not an english word!"
   else
-    "well done"
+    "Well done!"
   end
 end
 
