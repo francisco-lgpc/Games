@@ -22,8 +22,6 @@ def scrabble_score(word)
   return scrabble_score
 end
 
-# Test
-# p generate_grid(6)
 def in_grid?(word, grid)
   grid_h = Hash.new(0)
   r = true
@@ -38,7 +36,6 @@ end
 # p in_grid?(a, g)
 
 def english?(word)
-  # no gem version:      word.upcase != data_h["output"].upcase
   ENGLISH_WORDS.include?(word.downcase)
 end
 
@@ -66,8 +63,7 @@ def return_hash(time_elapsed, score, message)
   }
 end
 
-def run_game(attempt, grid, start_time, end_time)
-  # TODO: runs the game and return detailed hash of result
+def game_data(attempt, grid, start_time, end_time)
   attempt.upcase!
   time_elapsed = end_time - start_time
   in_grid = in_grid?(attempt, grid)
@@ -75,5 +71,3 @@ def run_game(attempt, grid, start_time, end_time)
   message = message(attempt, time_elapsed, score, in_grid)
   return_hash(time_elapsed, score, message)
 end
-
-#run_game("hi", Grid.new.show, )
