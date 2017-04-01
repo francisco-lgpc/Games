@@ -24,9 +24,13 @@ class Window < Gosu::Window
     @attempt           = TextField.new(self, @font, 500, 400)
     @attempt_submitted = true
     @start_menu        = true
+    @game_mode_menu    = false
+    @result_screen     = false
     @start             = false
     @start_time        = Time.now
-    @screen_intact     = true
+    @screen_intact     = false
+    @n                 = 1
+    @score_total       = 0
   end
 
   def set_letter_png
@@ -37,12 +41,39 @@ class Window < Gosu::Window
     end
   end
 
+  def attempt
+    self.text_input = @attempt
+
+    if Gosu.button_down? Gosu::KB_RETURN and !@screen_intact
+      @end_time          = Time.now
+      @attempt_submitted = true
+      self.text_input    = nil
+      @result            = game_data(@attempt.text, @grid.show, @start_time, @end_time)
+      @result_screen     = true
+      @score_total      += @result[:score]
+      @screen_intact     = true
+    end
+  end
+
   def update
     if !@attempt_submitted
       attempt
     else
       if !@screen_intact and Gosu.button_down? Gosu::KB_RETURN
-        @start_menu = true
+        @result_screen      = false
+        @screen_intact      = true
+        @total_score_screen = false
+        if @n_total > @n
+          @start         = true
+          @n            += 1
+        elsif @n_total > 1
+          @total_score_screen = true
+          @n_total            = 1
+          @n                  = 1
+        else
+          @start_menu         = true
+          @score_total        = 0
+        end
       end
 
       if @start
@@ -50,24 +81,11 @@ class Window < Gosu::Window
         @attempt           = TextField.new(self, @font, 500, 400)
         @attempt_submitted = false
         @start_menu        = false
+        @game_mode_menu    = false
+        @result_screen     = false
         @start             = false
         @start_time        = Time.now
-        @screen_intact     = true
       end
-    end
-  end
-
-  def attempt
-
-    self.text_input = @attempt
-
-    if Gosu.button_down? Gosu::KB_RETURN
-      @end_time          = Time.now
-      @attempt_submitted = true
-      self.text_input    = nil
-      @result            = game_data(@attempt.text, @grid.show, @start_time, @end_time)
-
-      @count = 0
     end
   end
 
@@ -88,8 +106,9 @@ class Window < Gosu::Window
 
       @font.draw("Timer: #{(Time.now - @start_time).to_i}", 1000, 40 , ZOrder::UI, 2.5, 2.5, 0xff_ffffff  )
 
+      @font.draw("Score: #{@score_total}",               20,   40 , ZOrder::UI, 2.5, 2.5, 0xff_ffffff  )
       # if I want to add a cursor: @cursor.draw(mouse_x, mouse_y, 0)
-    elsif !@start_menu
+    elsif @result_screen
       @font.draw("Your word:",                                               300, 1 * (self.height / 8) + 80 , ZOrder::UI, 2, 2, 0xff_ffffff  )
       @attempt.text.chars.each_with_index do |l, i|
         @letter_images[l.downcase].draw(                            500 + i * 66, 1 * (self.height / 8) + 70 , ZOrder::UI, 1, 1, 0xff_ffffff  )
@@ -97,26 +116,52 @@ class Window < Gosu::Window
       @font.draw("Time taken: #{@result[:time].round(2)} seconds",           300, 2 * (self.height / 8) + 80 , ZOrder::UI, 2, 2, 0xff_ffffff  )
       @font.draw("Your score: #{@result[:score]}",                           300, 3 * (self.height / 8) + 80 , ZOrder::UI, 2, 2, 0xff_ffffff  )
       @font.draw("#{@result[:message]}",                                     300, 4 * (self.height / 8) + 80 , ZOrder::UI, 2, 2, 0xff_ffffff  )
+    elsif @total_score_screen
+      @font.draw("FINAL SCORE #{@score_total}",                              300, 3 * (self.height / 8)      , ZOrder::UI, 4, 4, 0xff_ffffff  )
     end
 
     if @start_menu
       @cursor.draw(mouse_x, mouse_y, ZOrder::UI)
 
-      @h_start = 130
-      h = @h_start
+      @h_option_1 = 130
+      h = @h_option_1
       @w = 500
       @l = 280
 
       @font.draw("New Game", @w + @l / 4 - 60, h , ZOrder::MENU, 3, 3, 0xff_ffffff  )
-      c = Gosu::Color.rgba(200,200,200,100)
+      c = Gosu::Color.rgba(200, 200, 200, 100)
       self.draw_quad(@w - PADDING      , h - PADDING                   , c,
                      @w + @l + PADDING , h - PADDING                   , c,
                      @w - PADDING      , h + @font.height * 3 + PADDING, c,
                      @w + @l + PADDING , h + @font.height * 3 + PADDING, c, 0)
-      @h_exit = @h_start + 150
-      h = @h_exit
+      @h_option_2 = @h_option_1 + 150
+      h = @h_option_2
       @font.draw("Exit", @w + @l / 4 + 20, h , ZOrder::MENU, 3, 3, 0xff_ffffff  )
-      c = Gosu::Color.rgba(200,200,200,100)
+      c = Gosu::Color.rgba(200, 200, 200, 100)
+      self.draw_quad(@w - PADDING      , h - PADDING                   , c,
+                     @w + @l + PADDING , h - PADDING                   , c,
+                     @w - PADDING      , h + @font.height * 3 + PADDING, c,
+                     @w + @l + PADDING , h + @font.height * 3 + PADDING, c, 0)
+    end
+
+    if @game_mode_menu
+      @cursor.draw(mouse_x, mouse_y, ZOrder::UI)
+
+      @h_option_1 = 130
+      h = @h_option_1
+      @w = 500
+      @l = 280
+
+      @font.draw("One Word",   @w + @l / 4 - 50, h , ZOrder::MENU, 3, 3, 0xff_ffffff  )
+      c = Gosu::Color.rgba(200, 200, 200, 100)
+      self.draw_quad(@w - PADDING      , h - PADDING                   , c,
+                     @w + @l + PADDING , h - PADDING                   , c,
+                     @w - PADDING      , h + @font.height * 3 + PADDING, c,
+                     @w + @l + PADDING , h + @font.height * 3 + PADDING, c, 0)
+      @h_option_2 = @h_option_1 + 150
+      h = @h_option_2
+      @font.draw("Five Words", @w + @l / 4 - 65, h , ZOrder::MENU, 3, 3, 0xff_ffffff  )
+      c = Gosu::Color.rgba(200, 200, 200, 100)
       self.draw_quad(@w - PADDING      , h - PADDING                   , c,
                      @w + @l + PADDING , h - PADDING                   , c,
                      @w - PADDING      , h + @font.height * 3 + PADDING, c,
@@ -125,14 +170,14 @@ class Window < Gosu::Window
   end
 
 
-  def start?(mouse_x, mouse_y)
+  def Option_1?(mouse_x, mouse_y)
     mouse_x > @w - PADDING       && mouse_x < @w + @l + PADDING &&
-    mouse_y > @h_start - PADDING && mouse_y < @h_start + @font.height + PADDING
+    mouse_y > @h_option_1 - PADDING && mouse_y < @h_option_1 + @font.height + PADDING
   end
 
-  def exit?(mouse_x, mouse_y)
+  def Option_2?(mouse_x, mouse_y)
     mouse_x > @w - PADDING      && mouse_x < @w + @l + PADDING &&
-    mouse_y > @h_exit - PADDING && mouse_y < @h_exit + @font.height + PADDING
+    mouse_y > @h_option_2 - PADDING && mouse_y < @h_option_2 + @font.height + PADDING
   end
 
   def button_down(id)
@@ -143,17 +188,27 @@ class Window < Gosu::Window
     end
 
     if id == Gosu::MsLeft
-      @start = start?(mouse_x, mouse_y)
-      close if exit?(mouse_x, mouse_y)
+      if @start_menu
+        if Option_1?(mouse_x, mouse_y)
+          @game_mode_menu = true
+          return @start_menu = false
+        end
+        close if Option_2?(mouse_x, mouse_y)
+      end
+
+      if @game_mode_menu
+        @start = Option_1?(mouse_x, mouse_y) || Option_2?(mouse_x, mouse_y)
+        @n_total = 1 if Option_1?(mouse_x, mouse_y)
+        @n_total = 5 if Option_2?(mouse_x, mouse_y)
+        @game_mode_menu = false
+      end
     end
   end
 
   def button_up(id)
-    if id == Gosu::KB_RETURN && @attempt_submitted
+    if id == Gosu::KB_RETURN
       @screen_intact = false
     end
   end
 
 end
-
-Window.new.show
