@@ -1,5 +1,6 @@
 require 'open-uri'
 require 'json'
+require 'csv'
 require_relative "grid"
 # ENGLISH_WORDS_URL = "https://raw.githubusercontent.com/dwyl/english-words/master/words.txt"
 # ENGLISH_WORDS = open(ENGLISH_WORDS_URL).read.tr("\n", " ").split(" ").drop(50)
@@ -71,3 +72,33 @@ def game_data(attempt, grid, start_time, end_time)
   message = message(attempt, time_elapsed, score, in_grid)
   return_hash(time_elapsed, score, message)
 end
+
+def load_data(data)
+  i = 1
+  CSV.open('data/leaderboard.csv', 'wb') do |csv|
+    csv << ['Position''Name', 'Score']
+    data.each { |round_data| csv << [i, round_data[0], round_data[1]]; i += 1 }
+  end
+end
+
+def new_highscore?(score)
+  i = 1
+  CSV.foreach('data/leaderboard.csv', headers: true) do |row|
+    return i if score > row[2].to_i
+    i += 1
+  end
+  return false
+end
+
+def csv_to_arr
+  return_arr = []
+  CSV.foreach('data/leaderboard.csv', headers: true) do |row|
+    return_arr << [row[1], row[2]]
+  end
+  return_arr
+end
+
+
+
+# load_data([["Francisco", 1560], ["Joe", 1340]])
+# p new_highscore?(1600)
