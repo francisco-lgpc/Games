@@ -169,7 +169,6 @@ class Window < Gosu::Window
     end
   end
 
-
   def Option_1?(mouse_x, mouse_y)
     mouse_x > @w - PADDING       && mouse_x < @w + @l + PADDING &&
     mouse_y > @h_option_1 - PADDING && mouse_y < @h_option_1 + @font.height + PADDING
@@ -197,10 +196,12 @@ class Window < Gosu::Window
       end
 
       if @game_mode_menu
-        @start = Option_1?(mouse_x, mouse_y) || Option_2?(mouse_x, mouse_y)
+        if Option_1?(mouse_x, mouse_y) || Option_2?(mouse_x, mouse_y)
+          @start          = true
+          @game_mode_menu = false
+        end
         @n_total = 1 if Option_1?(mouse_x, mouse_y)
         @n_total = 5 if Option_2?(mouse_x, mouse_y)
-        @game_mode_menu = false
       end
     end
   end
