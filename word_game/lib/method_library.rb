@@ -76,7 +76,7 @@ end
 def load_data(data)
   i = 1
   CSV.open('data/leaderboard.csv', 'wb') do |csv|
-    csv << ['Position''Name', 'Score']
+    csv << ['Position', 'Name', 'Score']
     data.each { |round_data| csv << [i, round_data[0], round_data[1]]; i += 1 }
   end
 end

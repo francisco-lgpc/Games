@@ -115,7 +115,7 @@ class Window < Gosu::Window
       # welcome message:  @font.draw("Welcome to the Word Game", 300, self.height / 4 , ZOrder::UI, 3, 3, 0xff_ffffff  )
       # @font.draw(@grid.to_s, 300, 1 * (self.height / 4) , ZOrder::UI, 3, 3, 0xff_ffffff  )
       @grid.show.each_with_index do |l, i|
-        @letter_images[l.downcase].draw( 200 + i * 66, 1 * (self.height / 4) , ZOrder::UI, 1, 1, 0xff_ffffff  )
+        @letter_images[l.downcase].draw( 200 + i * 66, 1 * (self.height / 4) , ZOrder::UI, 1, 1, 0xff_ffffff  ) if !@letter_images[l.downcase].nil?
       end
       # This was the old code with the text box: @attempt.draw
       @font.draw("Your Word:", @attempt.x - 250, @attempt.y - 5 , ZOrder::UI, 2.5, 2.5, 0xff_ffffff  )
@@ -250,6 +250,10 @@ class Window < Gosu::Window
         @n_total = 5 if Option_2?(mouse_x, mouse_y)
       end
     end
+
+    if id == Gosu::KB_ENTER || id == Gosu::KB_RIGHT_SHIFT
+      @grid.shuffle if @grid
+    end
   end
 
   def button_up(id)
@@ -257,5 +261,4 @@ class Window < Gosu::Window
       @screen_intact = false
     end
   end
-
 end

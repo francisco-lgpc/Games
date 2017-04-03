@@ -13,7 +13,7 @@ class Grid
     @grid = []
     1.upto(grid_size - 2) { @grid << letters.sample }
     2.times { @grid << vowels.sample }
-    @grid.shuffle
+    @grid.shuffle!
   end
 
   def show
@@ -22,5 +22,9 @@ class Grid
 
   def to_s
     @grid.join(" ")
+  end
+
+  def shuffle
+    @grid.shuffle!
   end
 end
